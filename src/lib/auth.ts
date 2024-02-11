@@ -1,4 +1,4 @@
-import { DefaultSession, NextAuthOptions } from 'next-auth'
+import { DefaultSession, NextAuthOptions, getServerSession } from 'next-auth'
 import { prisma } from './db'
 import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import GoogleProvider from 'next-auth/providers/google'
@@ -64,3 +64,15 @@ export const authOptions: NextAuthOptions = {
         })
     ]
 }
+
+
+/**
+ * This utility function retrieves the current session of the user.
+ * It utilizes the `getSession` method from next-auth to fetch the session based on the authOptions configuration.
+ * This function is intended to be run on the server-side to securely fetch the user's session information.
+ * If the user is logged in, it returns the session details; otherwise, it returns an empty session.
+ */
+export const getAuthSession = () => {
+    return getServerSession(authOptions)
+}
+
