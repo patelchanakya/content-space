@@ -1,23 +1,31 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from typing import List, Optional
 
-from modal import Image, Stub, asgi_app
+from modal import Image, Stub, asgi_app, Secret
+
+# Assuming OpenAISchema and dsl are part of the instructor package or your own definitions
+import instructor
 
 from youtube_transcript_api import YouTubeTranscriptApi
 
 import re
 import os
 
-
-import os
 # import instructor
-# from openai import OpenAI
-# from pydantic import BaseModel
-# from dotenv import load_dotenv,find_dotenv
+from openai import AsyncOpenAI
 
+from dotenv import load_dotenv,find_dotenv
+load_dotenv(find_dotenv())
+api_key = os.environ.get("OPENAI_API_KEY")
+ # Enables response_model
+# Enables response_model
+client = instructor.patch(AsyncOpenAI())
 web_app = FastAPI()
 
-# # Load environment variables from .env file
+
+# Load environment variables from .env file
 # load_dotenv(find_dotenv())
 # api_key = os.environ.get("OPENAI_API_KEY")
 
@@ -35,8 +43,7 @@ web_app.add_middleware(
 
 stub = Stub()
 
-image = Image.debian_slim().pip_install("youtube-transcript-api")
-
+image = Image.debian_slim().pip_install("pydantic==2.5.3", "fastapi==0.109.0", "instructor", "youtube_transcript_api", "openai", "instructor", "python-dotenv")
 # Helper function to comment a bit on the YouTube video's transcript
 def parse_youtube_url(url: str) -> str:
         data = re.findall(r"(?:v=|\/)([0-9A-Za-z_-]{11}).*", url)
@@ -44,9 +51,15 @@ def parse_youtube_url(url: str) -> str:
             return data[0]
         return ""
 
-@web_app.post("/foo")
-async def process_youtube_video(request: Request):
 
+class TranscriptTopicsResponse(BaseModel):
+    link: str
+    video_id: str
+    topics: List[str]
+    error: Optional[str] = None
+
+@web_app.post("/foo", response_model=TranscriptTopicsResponse)
+async def process_youtube_video(request: Request):
     # # Patch the OpenAI client with Instructor
     # client = instructor.patch(OpenAI(api_key=api_key))
 
@@ -68,10 +81,32 @@ async def process_youtube_video(request: Request):
         # Return an error if fetching the transcript fails
         return {"error": str(error), "video_id": video_id}
 
-    # Return the original link, topics, video ID, and the cleaned transcript
-    return {"link": youtube_link, "topics": discussion_topics, "video_id": video_id, "transcript": transcript}
+    # Crafted prompt for topic extraction
+    prompt = f"Identify and list the main topics discussed in the following transcript. Keep it less than 7 topics :\n\n{transcript}"
 
-@stub.function(image=image)
+    try:
+        response = await client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "Identify and list the main topics discussed in the following transcript:"},
+                {"role": "user", "content": transcript}
+            ]
+        )
+    # Assuming the response structure has a 'choices' attribute that is a list of completion choices
+    # and you need to access the 'content' of the message in the first choice.
+        topics_response = response.choices[0].message.content.strip()
+        topics = topics_response.split('\n')  # Example processing, adjust based on actual response format
+    except Exception as error:
+        return {"error": str(error), "video_id": video_id}
+
+    return {
+        "link": youtube_link,
+        "video_id": video_id,
+        "topics": topics,
+        "error": None
+    }
+
+@stub.function(image=image, secrets=[Secret.from_dotenv()])
 @asgi_app()
 def fastapi_app():
     return web_app
