@@ -27,6 +27,10 @@ web_app.add_middleware(
     allow_headers=["*"],
 )
 
+class VideoTopicsRequest(BaseModel):
+    link: str
+    topics: List[str]
+
 # Define models and utilities
 class Topic(BaseModel):
     topic: str
@@ -44,9 +48,9 @@ def extract_video_id(url: str) -> str:
 
 # Define API endpoint
 @web_app.post("/foo", response_model=TranscriptTopicsResponse)
-async def process_youtube_video(request: Request):
-    body = await request.json()
-    youtube_link = body.get("link")
+async def process_youtube_video(video_topics: VideoTopicsRequest):
+    youtube_link = video_topics.link
+    additional_topics = video_topics.topics
     video_id = extract_video_id(youtube_link)
     if not video_id:
         return TranscriptTopicsResponse(error="Invalid YouTube URL", video_id=None)
@@ -57,7 +61,7 @@ async def process_youtube_video(request: Request):
     except Exception as error:
         return TranscriptTopicsResponse(error=str(error), video_id=video_id)
 
-    prompt = f"Identify and list at least 2 main topics discussed in the following transcript: {transcript}. Keep it less than 5 topics and be as comprehensive as possible with your discussion text including absolutely all relevant information for that topic without adding filler words. For each topic be super specific when associating its relevant discussion text such that that transcript is no longer needed and we can just refer to the topic discussion text. Ensure that each piece of discussion text serves as a standalone resource that accurately reflects the topics covered, without the need for further reference to the original transcript, like a blog."
+    prompt = f"Identify and list at least 1 main topics discussed in the following transcript: {transcript}. Keep it less than 3 topics and be as comprehensive as possible with your discussion text including absolutely all relevant information for that topic without adding filler words. For each topic be super specific when associating its relevant discussion text such that that transcript is no longer needed and we can just refer to the topic discussion text. Ensure that each piece of discussion text serves as a standalone resource that accurately reflects the topics covered, without the need for further reference to the original transcript, like a blog."
     try:
         response = await client.chat.completions.create(
             model="gpt-3.5-turbo-0125",
@@ -67,7 +71,20 @@ async def process_youtube_video(request: Request):
             ],
             response_model=TranscriptTopicsResponse
         )
-        return TranscriptTopicsResponse(link=youtube_link, video_id=video_id, topics=response.topics, error=None)
+ 
+          
+        # Assuming response.topics is a list of Topic instances or dictionaries matching the Topic model
+        if not hasattr(response, 'topics'):
+            response.topics = []
+
+        # Format additional topics correctly before appending
+        formatted_additional_topics = [{"topic": topic, "discussion_text": "Placeholder discussion text for additional topic."} for topic in additional_topics]
+        response.topics.extend(formatted_additional_topics)
+
+        # Ensure topics are correctly formatted as instances of Topic model
+        topics_models = [Topic(**topic) if isinstance(topic, dict) else topic for topic in response.topics]
+
+        return TranscriptTopicsResponse(link=youtube_link, video_id=video_id, topics=topics_models, error=None)
     except Exception as error:
         return TranscriptTopicsResponse(error=str(error), video_id=video_id, link=youtube_link, topics=[])
 
