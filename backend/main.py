@@ -16,8 +16,8 @@ from openai import AsyncOpenAI
 # Initialize FastAPI app and load environment variables
 web_app = FastAPI()
 api_key = os.getenv("OPENAI_API_KEY")
-client = instructor.patch(AsyncOpenAI())
 
+client = instructor.patch(AsyncOpenAI(), mode=instructor.Mode.TOOLS)  # Specify max_retries here
 # Configure CORS
 web_app.add_middleware(
     CORSMiddleware,
@@ -34,12 +34,12 @@ class VideoTopicsRequest(BaseModel):
 # Define models and utilities
 class Topic(BaseModel):
     topic: str
-    discussion_text: str
+    point: str
 
 class TranscriptTopicsResponse(BaseModel):
     link: str
     video_id: str
-    topics: List[Topic]
+    topics: List[Topic]  # Modified to hold a list of strings instead of Topic objects
     error: Optional[str] = None
 
 def extract_video_id(url: str) -> str:
@@ -49,6 +49,7 @@ def extract_video_id(url: str) -> str:
 # Define API endpoint
 @web_app.post("/foo", response_model=TranscriptTopicsResponse)
 async def process_youtube_video(video_topics: VideoTopicsRequest):
+
     youtube_link = video_topics.link
     additional_topics = video_topics.topics
     video_id = extract_video_id(youtube_link)
@@ -61,7 +62,12 @@ async def process_youtube_video(video_topics: VideoTopicsRequest):
     except Exception as error:
         return TranscriptTopicsResponse(error=str(error), video_id=video_id)
 
-    prompt = f"Identify and list at least 1 main topics discussed in the following transcript: {transcript}. Keep it less than 3 topics and be as comprehensive as possible with your discussion text including absolutely all relevant information for that topic without adding filler words. For each topic be super specific when associating its relevant discussion text such that that transcript is no longer needed and we can just refer to the topic discussion text. Ensure that each piece of discussion text serves as a standalone resource that accurately reflects the topics covered, without the need for further reference to the original transcript, like a blog."
+    # This OpenAI prompt is crafted for an in-depth analysis of the video transcript.
+    # Its objective is to unearth at least 3 new topics that add value to content generation, while also enhancing the provided topics with insights derived from the transcript. The original topics are to remain unaltered.
+    # A crucial limitation is the total number of topics, which must not exceed 5, to ensure focus and relevance.
+    # The prompt is designed to prevent topic duplication, thereby maintaining the uniqueness and pertinence of each topic.
+    # It mandates the inclusion of pertinent transcript excerpts for each topic to substantiate the main points for further elaboration.
+    prompt = f"Analyze the following transcript: '{transcript}'. Your task is to identify and enumerate at least 3 new main topics, providing detailed points for each. Additionally, enrich the pre-existing topics: {additional_topics} with insights from the transcript. It is imperative to keep the original topics ({additional_topics}) intact, merely augmenting them with relevant points from the transcript. Introduce new topics as necessary, but ensure the total does not surpass 5, to avoid redundancy and maintain contextual relevance and efficiency. For each topic, include relevant excerpts from the transcript that illustrate the core idea for further development. Ensure there is no overlap between new and existing topics, preserving the uniqueness and relevance of each."
     try:
         response = await client.chat.completions.create(
             model="gpt-3.5-turbo-0125",
@@ -69,22 +75,11 @@ async def process_youtube_video(video_topics: VideoTopicsRequest):
                 {"role": "system", "content": "You are a helpful assistant designed to output JSON."},
                 {"role": "user", "content": prompt}
             ],
-            response_model=TranscriptTopicsResponse
+            response_model=TranscriptTopicsResponse,
+            max_retries=5
         )
- 
-          
-        # Assuming response.topics is a list of Topic instances or dictionaries matching the Topic model
-        if not hasattr(response, 'topics'):
-            response.topics = []
 
-        # Format additional topics correctly before appending
-        formatted_additional_topics = [{"topic": topic, "discussion_text": "Placeholder discussion text for additional topic."} for topic in additional_topics]
-        response.topics.extend(formatted_additional_topics)
-
-        # Ensure topics are correctly formatted as instances of Topic model
-        topics_models = [Topic(**topic) if isinstance(topic, dict) else topic for topic in response.topics]
-
-        return TranscriptTopicsResponse(link=youtube_link, video_id=video_id, topics=topics_models, error=None)
+        return TranscriptTopicsResponse(link=youtube_link, video_id=video_id, topics=response.topics, error=None)
     except Exception as error:
         return TranscriptTopicsResponse(error=str(error), video_id=video_id, link=youtube_link, topics=[])
 
