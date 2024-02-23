@@ -21,6 +21,10 @@ import {
 import { Input } from "@/components/ui/input"
 import { Separator } from './ui/separator';
 import { Plus, Trash } from 'lucide-react';
+import { useMutation } from '@tanstack/react-query';
+import axios from 'axios';
+import { useToast } from './ui/use-toast';
+import { useRouter } from 'next/navigation';
 
 type Props = {}
 
@@ -29,6 +33,16 @@ type Input = z.infer<typeof createTopicsSchema>;
 
 
 const CreateCourseForm = (props: Props) => {
+    const router = useRouter();
+    const { toast } = useToast();
+
+    const { mutate: createBlog, isPending } = useMutation({
+        mutationFn: async ({ link, topics }: Input) => {
+            const response = await axios.post('/api/blog/createBlog', { link, topics })
+            return response.data
+        }
+    })
+
     // 1. Define your form.
     const form = useForm<Input>({
         resolver: zodResolver(createTopicsSchema),
@@ -40,7 +54,34 @@ const CreateCourseForm = (props: Props) => {
     })
 
     function onSubmit(data: Input) {
-        console.log(data);
+        // Check if there are any blank topics fields before proceeding
+        if (data.topics.some(topic => topic === '')) {
+            toast({
+                title: "Incomplete Topics",
+                description: "Please fill in all the topics before submitting.",
+                variant: "destructive",
+            });
+            return
+        }
+
+        createBlog(data, {
+            onSuccess: ({ blog_id }) => {
+                toast({
+                    title: "Blog Created",
+                    description: "Your blog has been successfully created.",
+                    variant: "default",
+                });
+                router.push(`/create/${blog_id}`)
+            },
+            onError: (error) => {
+                console.error("Blog creation failed", error);
+                toast({
+                    title: "Blog Creation Failed",
+                    description: "An error occurred while creating the blog. Please try again.",
+                    variant: "destructive",
+                });
+            }
+        })
     }
 
     form.watch()
@@ -49,7 +90,7 @@ const CreateCourseForm = (props: Props) => {
         <div className="w-full mt-4">
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
-                    <Button className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="submit">Create</Button>
+                    <Button disabled={isPending} className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="submit">Create</Button>
                     <FormField
                         control={form.control}
                         name="link"

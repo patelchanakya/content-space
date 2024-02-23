@@ -62,8 +62,10 @@ export async function POST(req: Request) {
 
 
 
-
+        // we return a blog id
         return NextResponse.json({ blog_id: blog.id });
+
+
     } catch (error) {
         console.error("Error details:", error);
         if (error instanceof ZodError) {

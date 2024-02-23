@@ -3,6 +3,8 @@ import './globals.css'
 import type { Metadata } from 'next'
 import { Open_Sans } from 'next/font/google'
 import NavBar from '@/components/Navbar'
+import { Provider } from '@/components/Providers'
+import { Toaster } from '@/components/ui/toaster'
 
 const openSans = Open_Sans({ subsets: ['latin'] })
 
@@ -23,8 +25,12 @@ export default function RootLayout({
         'min-h-screen',
         'pt-16'
       )}>
-        <NavBar />
-        {children}
+
+        <Provider>
+          <NavBar />
+          {children}
+          <Toaster />
+        </Provider>
       </body>
     </html>
   )
