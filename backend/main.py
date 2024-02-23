@@ -17,7 +17,7 @@ from openai import AsyncOpenAI
 web_app = FastAPI()
 api_key = os.getenv("OPENAI_API_KEY")
 
-client = instructor.patch(AsyncOpenAI(), mode=instructor.Mode.TOOLS)  # Specify max_retries here
+client = instructor.patch(AsyncOpenAI(api_key=api_key), mode=instructor.Mode.TOOLS)  
 # Configure CORS
 web_app.add_middleware(
     CORSMiddleware,

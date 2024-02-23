@@ -1,6 +1,6 @@
 'use client'
 
-import { createChapterSchema } from '@/validators/link';
+import { createTopicsSchema } from '@/validators/link';
 import React from 'react'
 import { z } from 'zod';
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -25,13 +25,13 @@ import { Plus, Trash } from 'lucide-react';
 type Props = {}
 
 // Utilizing Zod's infer method to derive TypeScript types from our schema
-type Input = z.infer<typeof createChapterSchema>;
+type Input = z.infer<typeof createTopicsSchema>;
 
 
 const CreateCourseForm = (props: Props) => {
     // 1. Define your form.
     const form = useForm<Input>({
-        resolver: zodResolver(createChapterSchema),
+        resolver: zodResolver(createTopicsSchema),
         // This sets the initial loading state for the form
         defaultValues: {
             link: '',

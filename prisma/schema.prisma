@@ -57,3 +57,31 @@ model User {
   accounts      Account[]
   sessions      Session[]
 }
+
+// Blog model to map to PlanetScale database
+model Blog {
+  id     String  @id @default(cuid())
+  name   String
+  // image  String
+  topics Topic[]
+}
+
+model Topic {
+  id     String  @id @default(cuid())
+  blogId String
+  name   String
+  blog   Blog    @relation(fields: [blogId], references: [id])
+  points Point[]
+
+  @@index([blogId], name: "blogId")
+}
+
+model Point {
+  id      String @id @default(cuid())
+  topicId String
+  name    String
+  summary String @db.VarChar(5500)
+  topic   Topic  @relation(fields: [topicId], references: [id])
+
+  @@index([topicId], name: "topicId")
+}
