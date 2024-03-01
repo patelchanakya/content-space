@@ -20,7 +20,7 @@ const TopicCard = React.forwardRef<TopicCardHandler, Props>(
     ({ topic }, ref) => {
 
         const [success, setSuccess] = React.useState<boolean>(false);
-        const { mutate: getTopicInfo, isPending } = useMutation({
+        const { mutate: getTopicInfo, isPending } = useMutation<unknown, void>({
             mutationFn: async () => {
                 const response = await axios.post("/api/topic/expand", {
                     topicId: topic.id,
@@ -49,7 +49,7 @@ const TopicCard = React.forwardRef<TopicCardHandler, Props>(
                 <div className="mt-2">
                     {topic.points.map((point, index) => (
                         <div key={point.id} className="px-4 py-2 mt-2 rounded-lg bg-secondary flex justify-between items-center">
-                            <h5 className="text-white text-sm font-semibold">{point.summary}</h5>
+                            <h5 className="text-gray-400 text-sm font-semibold">{point.summary}</h5>
                             {/* Include any other point details you want to display here */}
                         </div>
                     ))}
