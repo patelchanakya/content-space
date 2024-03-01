@@ -6,6 +6,7 @@ import ConfirmTopics from '@/components/ConfirmTopics'
 
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import Link from 'next/link'
 
 
 type Props = {
@@ -19,9 +20,9 @@ const CreateTopics = async ({ params: { blogId } }: Props) => {
 
     const session = await getAuthSession()
 
-    if (!session?.user) {
-        return redirect('/gallery')
-    }
+    // if (!session?.user) {
+    //     return redirect('/gallery')
+    // }
 
     const blog = await prisma.blog.findUnique({
         where: {
@@ -30,7 +31,8 @@ const CreateTopics = async ({ params: { blogId } }: Props) => {
         include: {
             topics: {
                 include: {
-                    points: true
+                    points: true,
+                    expandedContent: true // Include expandedContents for each topic
                 }
             }
         }
@@ -41,28 +43,17 @@ const CreateTopics = async ({ params: { blogId } }: Props) => {
     }
 
     return (
-        <div className="flex flex-col md:flex-row gap-4 items-start justify-center">
-            <Card className="w-full md:w-1/2 mt-4">
-                <div className="p-8">
-                    <p className="text-lg text-gray-600">Check out the source: <a href={blog.name} className="text-blue-500 hover:underline">{blog.name}</a></p>
-                    <div className="mt-4">
-                        <label className="inline-flex items-center">
-                            <input type="checkbox" className="form-checkbox" />
-                            <span className="ml-2">Include Images</span>
-                        </label>
-                        <label className="inline-flex items-center ml-4">
-                            <input type="checkbox" className="form-checkbox" />
-                            <span className="ml-2">Include Key Takeaways</span>
-                        </label>
-                        <label className="inline-flex items-center ml-4">
-                            <input type="checkbox" className="form-checkbox" />
-                            <span className="ml-2">Include Quotes</span>
-                        </label>
-                        <Button className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 mt-5 px-4 rounded" type="submit">Create Blog</Button>
-                    </div>
-                </div>
-            </Card>
-            <div className="w-full md:w-1/2">
+        <div className="pt-4 flex flex-col items-center justify-center my-4 gap-4">
+            <div className="w-1/2 p-2 bg-transparent shadow-md rounded-lg flex flex-col items-center justify-center">
+                <h2 className="text-lg font-semibold mb-2 text-gray-400">Source Blog:</h2>
+                <Link href={blog.name} passHref>
+                    <p className="text-sm decoration-sky-200 hover:decoration-sky-100 transition duration-300 ease-in-out text-gray-400">{blog.name}</p>
+                </Link>
+                {/* <div className="mt-4">
+                    <Button className="w-full bg-blue-500 hover:bg-blue-600 tsext-black font-medium py-2 px-4 rounded transition-all duration-300 ease-linear" type="button">Review Topics</Button>
+                </div> */}
+            </div>
+            <div className="w-3/4 lg:w-1/2 p-4">
                 <ConfirmTopics blog={blog} />
             </div>
         </div>

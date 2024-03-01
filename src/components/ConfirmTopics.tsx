@@ -41,7 +41,6 @@ const ConfirmTopics = ({ blog }: Props) => {
 
             {blog.topics.map((topic, index) => (
                 <div key={topic.id}>
-                    <button onClick={() => handleLoadTopic(topic.id)}>Load Topic {index + 1}</button>
                     <TopicCard
                         ref={topicRefs[topic.id]}
                         topic={topic}

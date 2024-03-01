@@ -67,21 +67,37 @@ model Blog {
 }
 
 model Topic {
-  id     String  @id @default(cuid())
-  blogId String
-  name   String
-  blog   Blog    @relation(fields: [blogId], references: [id])
-  points Point[]
+  id              String            @id @default(cuid())
+  blogId          String
+  name            String
+  blog            Blog              @relation(fields: [blogId], references: [id])
+  points          Point[]
+  expandedContent ExpandedContent[] // This line is added
 
   @@index([blogId], name: "blogId")
 }
 
 model Point {
-  id      String @id @default(cuid())
-  topicId String
-  name    String
-  summary String @db.VarChar(5500)
-  topic   Topic  @relation(fields: [topicId], references: [id])
+  id              String            @id @default(cuid())
+  topicId         String
+  name            String
+  summary         String            @db.VarChar(5500)
+  topic           Topic             @relation(fields: [topicId], references: [id])
+  expandedContent ExpandedContent[]
 
   @@index([topicId], name: "topicId")
+}
+
+model ExpandedContent {
+  id        String   @id @default(cuid())
+  topicId   String
+  pointId   String // Now required, every ExpandedContent must have a pointId
+  content   String   @db.Text // The expanded content from the API
+  createdAt DateTime @default(now())
+
+  topic Topic @relation(fields: [topicId], references: [id])
+  point Point @relation(fields: [pointId], references: [id])
+
+  @@index([topicId], name: "topicId")
+  @@index([pointId], name: "pointId")
 }
