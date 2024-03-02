@@ -9,9 +9,7 @@ const topicExpandSchema = z.object({
     topicId: z.string(),
 });
 
-export const config = {
-    runtime: 'experimental-edge',
-};
+export const runtime = "experimental-edge";
 
 const sleep = async () => new Promise((resolve) => setTimeout(resolve, Math.random() * 4000));
 
