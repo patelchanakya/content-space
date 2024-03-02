@@ -56,7 +56,7 @@ const TopicCard = React.forwardRef<TopicCardHandler, Props>(
                 updatedSet.add(topic.id);
                 return updatedSet;
             });
-        }, [setCompletedTopics, topic.id]); // Dependencies array for useCallback.
+        }, [setCompletedTopics, topic.id, completedTopics]); // Included completedTopics in the dependencies array as per the warning fix.
 
 
         React.useEffect(() => {

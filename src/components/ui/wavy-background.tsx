@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/cn";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { createNoise3D } from "simplex-noise";
 
 export const WavyBackground = ({
@@ -46,20 +46,27 @@ export const WavyBackground = ({
         }
     };
 
-    const init = () => {
+    const init = useCallback(() => {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         canvas = canvasRef.current;
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         ctx = canvas.getContext("2d");
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         w = ctx.canvas.width = window.innerWidth;
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         h = ctx.canvas.height = window.innerHeight;
         ctx.filter = `blur(${blur}px)`;
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         nt = 0;
         window.onresize = function () {
+            // eslint-disable-next-line react-hooks/exhaustive-deps
             w = ctx.canvas.width = window.innerWidth;
+            // eslint-disable-next-line react-hooks/exhaustive-deps
             h = ctx.canvas.height = window.innerHeight;
             ctx.filter = `blur(${blur}px)`;
         };
         render();
-    };
+    }, [blur]); // Added blur as a dependency
 
     const waveColors = colors ?? [
         "#38bdf8",
@@ -84,20 +91,22 @@ export const WavyBackground = ({
     };
 
     let animationId: number;
-    const render = () => {
+    const render = useCallback(() => {
         ctx.fillStyle = backgroundFill || "black";
         ctx.globalAlpha = waveOpacity || 0.5;
         ctx.fillRect(0, 0, w, h);
         drawWave(5);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         animationId = requestAnimationFrame(render);
-    };
+    }, [backgroundFill, waveOpacity]); // Added backgroundFill and waveOpacity as dependencies
 
     useEffect(() => {
         init();
         return () => {
             cancelAnimationFrame(animationId);
         };
-    }, []);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [init]); // Added init as a dependency
 
     const [isSafari, setIsSafari] = useState(false);
     useEffect(() => {

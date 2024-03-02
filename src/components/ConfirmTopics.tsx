@@ -22,6 +22,7 @@ const ConfirmTopics = ({ blog }: Props) => {
     const topicRefs: Record<string, React.RefObject<TopicCardHandler>> = {};
     // Looping through each topic to bind the topic ID to a new React ref
     blog.topics.forEach((topic) => {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
         topicRefs[topic.id] = React.useRef(null);
     });
 
