@@ -43,7 +43,7 @@ const CreateTopics = async ({ params: { blogId } }: Props) => {
     }
 
     return (
-        <div className="pt-4 flex flex-col items-center justify-center my-4 gap-4">
+        <div className="pt-16 flex flex-col items-center justify-center my-4 gap-4">
             <div className="w-1/2 p-2 bg-transparent shadow-md rounded-lg flex flex-col items-center justify-center">
                 <h2 className="text-lg font-semibold mb-2 text-gray-400">Source Blog:</h2>
                 <Link href={blog.name} passHref>

@@ -20,7 +20,7 @@ const CreatePage = async (props: Props) => {
     }
 
     return (
-        <div className="flex flex-col items-start max-w-xl px-8 mx-auto my-16 sm:px-0">
+        <div className="flex flex-col items-start max-w-xl px-8 mx-auto my-16 pt-8 md:pt-12 sm:px-0">
             <h1 className="self-center text-3xl font-bold text-center sm:text-6xl">
                 Content Copilot
             </h1>
