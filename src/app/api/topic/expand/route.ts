@@ -9,8 +9,6 @@ const topicExpandSchema = z.object({
     topicId: z.string(),
 });
 
-export const runtime = "experimental-edge";
-
 const sleep = async () => new Promise((resolve) => setTimeout(resolve, Math.random() * 4000));
 
 interface BlogExpansionResponse {
@@ -54,7 +52,6 @@ export async function POST(req: Request, res: Response) {
         };
 
         const expandTopicsResponse = await axios.post<BlogExpansionResponse>(backendAPI, requestBody);
-
         const { expanded_content, topic_name } = expandTopicsResponse.data;
 
         // Extract the blogId from the topicDetails
