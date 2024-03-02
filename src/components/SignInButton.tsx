@@ -10,7 +10,7 @@ const SignInButton = (props: Props) => {
     return (
         <Button variant='ghost' onClick={() => {
             signIn("google")
-        }}>
+        }} className="font-bold">
             Sign In
         </Button>
     )

@@ -1,11 +1,7 @@
-import Link from 'next/link'
 import React from 'react'
-import SignInButton from './SignInButton'
 import { getAuthSession } from '@/lib/auth'
-import UserAccountNavbar from "./UserAccountNavbar";
-// import { ThemeToggle } from "./ThemeToggle";
-
-
+import { FloatingNav } from './ui/floating-navbar';
+import { IconHome, IconWriting, IconPlus, IconSettings } from '@tabler/icons-react';
 type Props = {}
 
 const NavBar = async (props: Props) => {
@@ -13,40 +9,20 @@ const NavBar = async (props: Props) => {
     const session = await getAuthSession();
     console.log(session);
 
+    const navItems = [
+        { name: 'Home', link: '/', icon: <IconHome className="h-4 w-4 text-neutral-500 dark:text-white" /> },
+        { name: 'Gallery', link: '/gallery', icon: <IconWriting className="h-4 w-4 text-neutral-500 dark:text-white" /> },
+        ...(session?.user ? [
+            { name: 'Create Course', link: '/create', icon: <IconPlus className="h-4 w-4 text-neutral-500 dark:text-white" /> },
+            { name: 'Settings', link: '/settings', icon: <IconSettings className="h-4 w-4 text-neutral-500 dark:text-white" /> },
+        ] : []),
+    ];
+
     return (
-        <nav className="fixed inset-x-0 top-0 bg-white dark:bg-gray-950 z-[10] h-fit border-b border-zinc-300 py-2">
-            <div className="flex items-center justify-center h-full gap-2 px-8 mx-auto sm:justify-between max-w-7xl">
-                <Link href="/" className="items-center hidden gap-2 sm:flex">
-                    <p className="rounded-lg border-2 border-b-4 border-r-4 border-black px-2 py-1 text-xl font-bold transition-all hover:-translate-y-[2px] md:block dark:border-white">
-                        Content Crazy
-                    </p>
-                </Link>
-                <div className="flex items-center">
-                    <Link href="/gallery" className="mr-3">
-                        Gallery
-                    </Link>
-                    {session?.user && (
-                        <>
-                            <Link href="/create" className="mr-3">
-                                Create Course
-                            </Link>
-                            <Link href="/settings" className="mr-3">
-                                Settings
-                            </Link>
-                        </>
-                    )}
-                    {/* <ThemeToggle className="mr-3" /> */}
-                    <div className="flex items-center">
-                        {session?.user ? (
-                            <UserAccountNavbar user={session.user} />
-                        ) : (
-                            <SignInButton />
-                        )}
-                    </div>
-                </div>
-            </div>
-        </nav>
-    )
+        <div className="relative w-full">
+            <FloatingNav navItems={navItems} />
+        </div>
+    );
 }
 
 export default NavBar
