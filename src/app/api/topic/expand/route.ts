@@ -49,7 +49,7 @@ export async function POST(req: Request, res: Response) {
             );
         }
 
-        const backendAPI = "https://patelchanakya--main-py-fastapi-app-dev.modal.run/expandblog";
+        const backendAPI = "https://patelchanakya--my-content-go-crazy-fastapi-app.modal.run/expandblog";
         const requestBody = {
             topicName: topicDetails.name,
             points: topicDetails.points.map(point => point.summary),

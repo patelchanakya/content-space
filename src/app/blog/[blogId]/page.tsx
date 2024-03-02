@@ -43,9 +43,9 @@ type Props = {
 
 export default async function BlogPage({ params: { blogId } }: Props) {
     const session = await getAuthSession();
-    if (!session) {
-        return redirect('/gallery');
-    }
+    // if (!session) {
+    //     return redirect('/gallery');
+    // }
 
     const blog = await prisma.blog.findUnique({
         where: {

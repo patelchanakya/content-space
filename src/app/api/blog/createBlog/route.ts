@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     const { link, topics } = createTopicsSchema.parse(body);
 
     try {
-        const backendAPI = "https://patelchanakya--main-py-fastapi-app-dev.modal.run/createblog";
+        const backendAPI = "https://patelchanakya--my-content-go-crazy-fastapi-app.modal.run/createblog";
 
         // This line sends a POST request to the backendAPI URL defined earlier in the code.
         // The request body contains the 'link' and 'topics' extracted from the request to this route.
