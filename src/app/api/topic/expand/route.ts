@@ -59,6 +59,16 @@ export async function POST(req: Request, res: Response) {
 
         const { expanded_content, topic_name } = expandTopicsResponse.data;
 
+        // Extract the blogId from the topicDetails
+        const blogIdFromTopic = topicDetails.blog?.id;
+
+        if (!blogIdFromTopic) {
+            return NextResponse.json(
+                { success: false, error: 'Blog associated with the topic not found' },
+                { status: 404 }
+            );
+        }
+
         // Since there's only one point, no need to iterate
         const point = topicDetails.points[0];
         const expandedContentRecord = await prisma.expandedContent.create({
@@ -71,16 +81,6 @@ export async function POST(req: Request, res: Response) {
 
         // Directly use the blogId associated with the topic from the database
         // This ensures we are working with a valid blogId for the response
-
-        // Extract the blogId from the topicDetails
-        const blogIdFromTopic = topicDetails.blog?.id;
-
-        if (!blogIdFromTopic) {
-            return NextResponse.json(
-                { success: false, error: 'Blog associated with the topic not found' },
-                { status: 404 }
-            );
-        }
 
         return NextResponse.json({
             success: true,
@@ -98,7 +98,6 @@ export async function POST(req: Request, res: Response) {
             },
             status: 200
         });
-
     } catch (error) {
         if (error instanceof z.ZodError) {
             return NextResponse.json(

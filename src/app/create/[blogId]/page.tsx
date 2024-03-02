@@ -22,7 +22,7 @@ const CreateTopics = async ({ params: { blogId } }: Props) => {
 
     // if (!session?.user) {
     //     return redirect('/gallery')
-    // }
+    // } 
 
     const blog = await prisma.blog.findUnique({
         where: {

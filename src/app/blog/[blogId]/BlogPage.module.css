@@ -1,0 +1,16 @@
+/* BlogPage.module.css */
+.parsedContent h2 {
+    font-size: 1.5rem;
+    /* Example size */
+    font-weight: bold;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    /* Add more styles as needed */
+}
+
+.parsedContent p {
+    margin-bottom: 1rem;
+    /* Additional paragraph styling */
+}
+
+/* Continue with styles for other elements as needed */
