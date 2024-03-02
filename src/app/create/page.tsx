@@ -15,9 +15,9 @@ type Props = {};
 const CreatePage = async (props: Props) => {
 
     const session = await getAuthSession();
-    // if (!session?.user) {
-    //     return redirect("/gallery");
-    // }
+    if (!session?.user) {
+        return redirect("/gallery");
+    }
 
     return (
         <div className="flex flex-col items-start max-w-xl px-8 mx-auto my-16 pt-8 md:pt-12 sm:px-0">
