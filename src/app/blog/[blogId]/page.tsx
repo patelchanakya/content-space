@@ -5,6 +5,8 @@ import { redirect } from 'next/navigation'
 import parse from 'html-react-parser';
 import styles from './BlogPage.module.css';
 import CopyButton from '@/components/CopyButton';
+import { Suspense } from 'react';
+import VideoComponent from '@/components/ui/video-component';
 
 interface BlogDetails {
     id: string;
@@ -43,9 +45,9 @@ type Props = {
 
 export default async function BlogPage({ params: { blogId } }: Props) {
     const session = await getAuthSession();
-    // if (!session) {
-    //     return redirect('/gallery');
-    // }
+    if (!session) {
+        return redirect('/gallery');
+    }
 
     const blog = await prisma.blog.findUnique({
         where: {
@@ -72,8 +74,15 @@ export default async function BlogPage({ params: { blogId } }: Props) {
     }
 
     return (
-        <section className="max-w-4xl mx-auto px-4 pt-16 sm:px-6 lg:px-8">
-            <h1 className="text-3xl font-bold text-center mb-6">Unique Blog Title - {blogId}</h1>
+        <section className="max-w-4xl mx-auto px-4 pt-20 sm:px-6 lg:px-8">
+
+            <div className="aspect-w-16 aspect-h-9">
+                <Suspense fallback={<p>Loading content...</p>}>
+                    {/* Assuming there's a component similar to VideoComponent for displaying blog content */}
+                    <VideoComponent videoUrl={blog.name} />
+                </Suspense>
+            </div>
+
             {blog.topics.map((topic) => (
                 <article key={topic.id} className="mb-8">
                     <div className="space-y-4">

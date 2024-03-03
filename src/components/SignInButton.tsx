@@ -4,14 +4,16 @@ import React from 'react'
 import { Button } from './ui/button'
 import { signIn } from "next-auth/react"
 
-type Props = {}
+type Props = {
+    buttonText: string;
+}
 
-const SignInButton = (props: Props) => {
+const SignInButton = ({ buttonText }: Props) => {
     return (
         <Button variant='ghost' onClick={() => {
             signIn("google")
         }} className="font-bold">
-            Sign In
+            {buttonText}
         </Button>
     )
 }

@@ -32,6 +32,11 @@ const ConfirmTopics = ({ blog }: Props) => {
 
     return (
         <div className="p-4">
+            {totalTopicsCount === completedTopics.size && (
+                <div className="text-center text-sm font-medium text-green-600 mb-4">
+                    All topics have completed generating!
+                </div>
+            )}
             {blog.topics.map((topic, topicIndex) => (
                 <div key={topic.id}>
                     <TopicCard

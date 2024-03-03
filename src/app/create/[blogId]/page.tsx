@@ -20,9 +20,9 @@ const CreateTopics = async ({ params: { blogId } }: Props) => {
 
     const session = await getAuthSession()
 
-    // if (!session?.user) {
-    //     return redirect('/gallery')
-    // } 
+    if (!session?.user) {
+        return redirect('/gallery')
+    }
 
     const blog = await prisma.blog.findUnique({
         where: {
@@ -43,17 +43,9 @@ const CreateTopics = async ({ params: { blogId } }: Props) => {
     }
 
     return (
-        <div className="pt-16 flex flex-col items-center justify-center my-4 gap-4">
-            <div className="w-1/2 p-2 bg-transparent shadow-md rounded-lg flex flex-col items-center justify-center">
-                <h2 className="text-lg font-semibold mb-2 text-gray-400">Source Blog:</h2>
-                <Link href={blog.name} passHref>
-                    <p className="text-sm decoration-sky-200 hover:decoration-sky-100 transition duration-300 ease-in-out text-gray-400">{blog.name}</p>
-                </Link>
-                {/* <div className="mt-4">
-                    <Button className="w-full bg-blue-500 hover:bg-blue-600 tsext-black font-medium py-2 px-4 rounded transition-all duration-300 ease-linear" type="button">Review Topics</Button>
-                </div> */}
-            </div>
-            <div className="w-3/4 lg:w-1/2 p-4">
+        <div className="flex flex-col items-center justify-center  pt-16">
+
+            <div className="max-w-4xl w-full px-4 sm:px-6 lg:px-8">
                 <ConfirmTopics blog={blog} />
             </div>
         </div>

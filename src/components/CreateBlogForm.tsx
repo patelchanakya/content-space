@@ -144,25 +144,25 @@ const CreateCourseForm = (props: Props) => {
                             );
                         })}
                     </AnimatePresence>
-                    <div className="flex items-center justify-center mt-4">
-                        <Separator className="flex-[1]" />
-                        <div className="mx-4">
+                    <div className="flex flex-col sm:flex-row items-center justify-center mt-4 space-y-2 sm:space-y-0">
+                        <Separator className="flex-grow hidden sm:block" />
+                        <div className="flex flex-wrap justify-center gap-2">
                             <Button
                                 type="button"
                                 variant="secondary"
-                                className="font-semibold"
+                                className="font-semibold w-40"
                                 onClick={() => {
                                     form.setValue("topics", [...form.watch("topics"), '']);
                                 }}
                             >
-                                Add Additional Topic
+                                Add Topic
                                 <Plus className="w-4 h-4 ml-2 text-green-500" />
                             </Button>
 
                             <Button
                                 type="button"
                                 variant="secondary"
-                                className="font-semibold ml-2"
+                                className="font-semibold w-40"
                                 onClick={() => {
                                     form.setValue("topics", form.watch("topics").slice(0, -1));
                                 }}
@@ -171,7 +171,7 @@ const CreateCourseForm = (props: Props) => {
                                 <Trash className="w-4 h-4 ml-2 text-red-500" />
                             </Button>
                         </div>
-                        <Separator className="flex-[1]" />
+                        <Separator className="flex-grow hidden sm:block" />
                     </div>
 
                 </form>

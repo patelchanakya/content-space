@@ -1,13 +1,19 @@
 "use client";
-import React from "react"; // Removed useState import as it's no longer needed
+import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/cn";
 import Link from "next/link";
+import { Button } from "./button";
+import { signOut } from "next-auth/react";
+import { LogOut as LogOutIcon } from 'lucide-react';
 import SignInButton from "../SignInButton";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./dropdown-menu";
+import UserAvatar from "../UserAvatar";
 
 export const FloatingNav = ({
     navItems,
     className,
+    session,
 }: {
     navItems: {
         name: string;
@@ -15,19 +21,19 @@ export const FloatingNav = ({
         icon?: JSX.Element;
     }[];
     className?: string;
+    session?: any;
 }) => {
-    // Removed useScroll, useMotionValueEvent, and visible state logic
 
     return (
         <AnimatePresence mode="wait">
             <motion.div
                 initial={{
                     opacity: 1,
-                    y: 0, // Changed from -100 to 0 to make it always visible
+                    y: 0,
                 }}
                 animate={{
-                    y: 0, // Always visible
-                    opacity: 1, // Always visible
+                    y: 0,
+                    opacity: 1,
                 }}
                 transition={{
                     duration: 0.2,
@@ -49,7 +55,35 @@ export const FloatingNav = ({
                         <span className="hidden sm:block text-sm">{navItem.name}</span>
                     </Link>
                 ))}
-                <SignInButton />
+                {session ? (
+                    <DropdownMenu modal={false}>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="p-0 m-0 inline-flex focus:outline-none focus:ring-0">
+                                <UserAvatar user={session.user} />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="z-[6000]" sideOffset={5}>
+                            <div className="flex items-center justify-start gap-2 p-2">
+                                <div className="flex flex-col space-y-1 leading-none">
+                                    {session.user?.email && (
+                                        <p className="w-[200px] truncate text-sm text-secondary-foreground">
+                                            {session.user.email}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                            <DropdownMenuItem
+                                onSelect={() => signOut()}
+                                className="text-red-600 cursor-pointer flex items-center space-x-2"
+                            >
+                                <span>Sign out</span>
+                                <LogOutIcon className="h-4 w-4" />
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                ) : (
+                    <SignInButton buttonText={"Sign In"} />
+                )}
             </motion.div>
         </AnimatePresence>
     );

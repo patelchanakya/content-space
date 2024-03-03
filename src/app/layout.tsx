@@ -23,6 +23,7 @@ export default function RootLayout({
         openSans.className, // First, applying the Open Sans font class
         'antialiased',
         'min-h-screen',
+
       )}>
 
         <Provider>
