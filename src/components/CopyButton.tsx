@@ -37,11 +37,11 @@ const CopyButton: React.FC<CopyButtonProps> = ({ text }) => {
             disabled={!!copiedText} // Disable button when text is copied
             className={cn(
                 "transition-all duration-300 ease-in-out",
-                copiedText ? "bg-transparent text-success" : "bg-primary text-white"
+                copiedText ? "bg-success text-black" : "bg-white text-black"
             )}
             onClick={() => {
                 copyToClipboard(text);
-                setTimeout(() => setCopiedText(null), 1100); // Clears copiedText after 2 seconds
+                setTimeout(() => setCopiedText(null), 2000); // Clears copiedText after 2 seconds
             }}
         >
             {copiedText ? "Copied!" : "Copy"}

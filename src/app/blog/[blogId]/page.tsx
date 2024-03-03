@@ -45,9 +45,9 @@ type Props = {
 
 export default async function BlogPage({ params: { blogId } }: Props) {
     const session = await getAuthSession();
-    if (!session) {
-        return redirect('/gallery');
-    }
+    // if (!session) {
+    //     return redirect('/gallery');
+    // }
 
     const blog = await prisma.blog.findUnique({
         where: {
@@ -96,12 +96,11 @@ export default async function BlogPage({ params: { blogId } }: Props) {
                     </div>
                     <div className="mt-4">
                         {topic.expandedContent.map((content) => (
-                            <div key={content.id} className="p-4 bg-gray-200 rounded-lg shadow overflow-hidden min-w-0 break-words">
-                                <div className={`${styles.parsedContent} max-w-none sm:break-words overflow-hidden`}>{parse(content.content)}</div>
+                            <div key={content.id} className="p-4 bg-black rounded-lg shadow-lg overflow-hidden min-w-0 break-words">
+                                <div className={`${styles.parsedContent} max-w-none sm:break-words overflow-hidden text-white`}>{parse(content.content)}</div>
 
-                                <div className="flex flex-col sm:flex-row justify-between items-end text-xs font-medium text-gray-500 italic overflow-hidden">
+                                <div className="flex flex-col sm:flex-row justify-between items-end text-xs font-medium text-gray-400 italic overflow-hidden">
                                     <div className="flex-1 mb-2 sm:mb-0 break-words">
-                                        {/* <div>blog.{blogId}.topic.{content.topicId}.point.{content.pointId}</div> */}
                                         <div>Date: {new Date(content.createdAt).toLocaleDateString()} | Time: {new Date(content.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                     </div>
 

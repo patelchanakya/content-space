@@ -38,16 +38,6 @@ export function ThreeDCardDemo() {
                     />
                 </CardItem>
                 <div className="flex justify-end items-center mt-20">
-
-                    {session?.user ? null : (
-                        <CardItem
-                            translateZ={20}
-                            as="div" // Change the element type to div for the SignInButton
-                            className=" rounded-xl bg-black dark:bg-white dark:text-black text-white text-xs font-bold"
-                        >
-                            <SignInButton buttonText="Sign Up" /> {/* Use SignInButton component */}
-                        </CardItem>
-                    )}
                     <CardItem
                         translateZ={20}
                         as="div" // Changed "a" to "div" to wrap with Link correctly
@@ -57,6 +47,16 @@ export function ThreeDCardDemo() {
                             View Blogs →
                         </Link>
                     </CardItem>
+                    {session?.user ? null : (
+                        <CardItem
+                            translateZ={20}
+                            as="div" // Change the element type to div for the SignInButton
+                            className=" rounded-xl bg-black dark:bg-white dark:text-black text-white text-xs font-bold"
+                        >
+                            <SignInButton buttonText="Sign Up" /> {/* Use SignInButton component */}
+                        </CardItem>
+                    )}
+
                 </div>
             </CardBody>
         </CardContainer>

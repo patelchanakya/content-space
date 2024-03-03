@@ -5,9 +5,9 @@ interface VideoComponentProps {
 }
 
 const VideoComponent: React.FC<VideoComponentProps> = ({ videoUrl }) => {
-    const videoId = videoUrl.split('v=')[1];
-    const src = `https://www.youtube.com/embed/${videoId}`;
-
+    const videoIdMatch = videoUrl.match(/(?:v=|\/)([0-9A-Za-z_-]{11})/);
+    const videoId = videoIdMatch ? videoIdMatch[1] : null;
+    const src = videoId ? `https://www.youtube.com/embed/${videoId}` : '';
     return (
         <iframe
             src={src}
