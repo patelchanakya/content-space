@@ -5,7 +5,7 @@ import { ThreeDCardDemo } from "../components/home-card";
 
 export default function HomePage() {
   return (
-    <WavyBackground className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <WavyBackground className="max-w-4xl mx-auto pt-4 px-4 sm:px-6 lg:px-8">
       <div className="flex flex-col items-center justify-center space-y-2">
 
         <ThreeDCardDemo />
@@ -13,3 +13,4 @@ export default function HomePage() {
     </WavyBackground>
   );
 }
+

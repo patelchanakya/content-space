@@ -43,7 +43,7 @@ const CreateTopics = async ({ params: { blogId } }: Props) => {
     }
 
     return (
-        <div className="flex flex-col items-center justify-center  pt-16">
+        <div className="flex flex-col items-center justify-center pt-24">
 
             <div className="max-w-4xl w-full px-4 sm:px-6 lg:px-8">
                 <ConfirmTopics blog={blog} />

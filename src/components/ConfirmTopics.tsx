@@ -31,7 +31,7 @@ const ConfirmTopics = ({ blog }: Props) => {
     const totalTopicsCount = React.useMemo(() => blog.topics.length, [blog.topics]);
 
     return (
-        <div className="p-4">
+        <div className="p-2">
             {totalTopicsCount === completedTopics.size && (
                 <div className="text-center text-sm font-medium text-green-600 mb-4">
                     All topics have completed generating!
@@ -64,7 +64,7 @@ const ConfirmTopics = ({ blog }: Props) => {
 
                     {totalTopicsCount === completedTopics.size ? (
                         <Link href={`/blog/${blog.id}`} className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            Save & Continue
+                            Continue to Blog
                             <ChevronRight className="w-4 h-4 ml-2" strokeWidth={2} />
                         </Link>
                     ) : (

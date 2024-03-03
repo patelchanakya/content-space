@@ -5,6 +5,7 @@ import { Open_Sans } from 'next/font/google'
 import NavBar from '@/components/Navbar'
 import { Provider } from '@/components/Providers'
 import { Toaster } from '@/components/ui/toaster'
+import { useRouter } from 'next/navigation'
 
 const openSans = Open_Sans({ subsets: ['latin'] })
 
@@ -23,6 +24,7 @@ export default function RootLayout({
         openSans.className, // First, applying the Open Sans font class
         'antialiased',
         'min-h-screen',
+        'bg-black',
 
       )}>
 

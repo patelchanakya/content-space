@@ -19,7 +19,7 @@ const NavBar = async (props: Props) => {
     ];
 
     return (
-        <div className="relative w-full pb-6">
+        <div className="relative w-full pb-4 sm:pb-2">
             <FloatingNav navItems={navItems} session={session} />
         </div>
     );

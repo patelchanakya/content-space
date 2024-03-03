@@ -5,8 +5,13 @@ import Image from "next/image";
 import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card";
 import SignInButton from "./SignInButton"; // Import SignInButton component
 import Link from "next/link";
+import { useSession } from "next-auth/react";
+
 
 export function ThreeDCardDemo() {
+
+    const { data: session } = useSession();
+
     return (
         <CardContainer className="inter-var">
             <CardBody className="bg-gray-50 relative group/card  dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] dark:bg-black dark:border-white/[0.2] border-black/[0.1] w-auto sm:w-[30rem] h-auto rounded-xl p-6 border  ">
@@ -32,7 +37,17 @@ export function ThreeDCardDemo() {
                         alt="thumbnail"
                     />
                 </CardItem>
-                <div className="flex justify-between items-center mt-20">
+                <div className="flex justify-end items-center mt-20">
+
+                    {session?.user ? null : (
+                        <CardItem
+                            translateZ={20}
+                            as="div" // Change the element type to div for the SignInButton
+                            className=" rounded-xl bg-black dark:bg-white dark:text-black text-white text-xs font-bold"
+                        >
+                            <SignInButton buttonText="Sign Up" /> {/* Use SignInButton component */}
+                        </CardItem>
+                    )}
                     <CardItem
                         translateZ={20}
                         as="div" // Changed "a" to "div" to wrap with Link correctly
@@ -41,13 +56,6 @@ export function ThreeDCardDemo() {
                         <Link href="/gallery" passHref>
                             View Blogs →
                         </Link>
-                    </CardItem>
-                    <CardItem
-                        translateZ={20}
-                        as="div" // Change the element type to div for the SignInButton
-                        className=" rounded-xl bg-black dark:bg-white dark:text-black text-white text-xs font-bold"
-                    >
-                        <SignInButton buttonText="Sign Up" /> {/* Use SignInButton component */}
                     </CardItem>
                 </div>
             </CardBody>

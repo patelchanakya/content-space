@@ -87,7 +87,7 @@ const CreateCourseForm = (props: Props) => {
     form.watch()
 
     return (
-        <div className="w-full mt-4">
+        <div className="w-full mt-4 bg-black p-6 rounded-lg">
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
                     <Button disabled={isPending} className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="submit">Create</Button>
@@ -96,7 +96,7 @@ const CreateCourseForm = (props: Props) => {
                         name="link"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Enter Youtube Link</FormLabel>
+                                <FormLabel className="text-white">Enter Youtube Link</FormLabel>
                                 <FormControl>
                                     <Input placeholder="Enter a youtube link to get started." {...field} />
                                 </FormControl>
@@ -127,7 +127,7 @@ const CreateCourseForm = (props: Props) => {
                                         render={({ field }) => {
                                             return (
                                                 <FormItem className="flex flex-col items-start w-full sm:items-center sm:flex-row">
-                                                    <FormLabel className="flex-[1] text-xl">
+                                                    <FormLabel className="flex-[1] text-white text-xl">
                                                         Topic {index + 1}
                                                     </FormLabel>
                                                     <FormControl className="flex-[6]">

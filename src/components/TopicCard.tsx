@@ -112,11 +112,11 @@ const TopicCard = React.forwardRef<TopicCardHandler, Props>(
                 }
             )}>
                 <div className="flex-1">
-                    <h3 className="text-xl font-semibold">{topic.name ? topic.name.replace(/^new topic:\s*/gi, '') : 'Unnamed Topic'}</h3>
-                    <div className="mt-2">
+                    <h3 className="text-xl font-semibold text-white">{topic.name ? topic.name.replace(/^new topic:\s*/gi, '') : 'Unnamed Topic'}</h3>
+                    <div className="mt-2 bg-black">
                         {topic.points.map((point, index) => (
-                            <div key={point.id} className="px-4 py-2 mt-2 rounded-lg bg-secondary flex justify-between items-center">
-                                <h5 className="text-gray-400 text-sm font-semibold">{point.summary}</h5>
+                            <div key={point.id} className="px-4 py-2 mt-2 rounded-lg bg-black flex justify-between items-center">
+                                <h5 className="text-white text-sm font-semibold">{point.summary}</h5>
                                 {/* Include any other point details you want to display here */}
                             </div>
                         ))}
