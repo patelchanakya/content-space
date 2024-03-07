@@ -130,7 +130,7 @@ async def process_youtube_video(video_topics: VideoTopicsRequest):
 image = Image.debian_slim().pip_install("pydantic==2.5.3", "fastapi==0.109.0", "instructor", "youtube_transcript_api", "openai", "python-dotenv")
 stub = Stub("my-content-go-crazy")
 
-@stub.function(image=image, secrets=[Secret.from_dotenv()])
+@stub.function(image=image, secrets=[Secret.from_dotenv()], retries=4)
 @asgi_app()
 def fastapi_app():
     return web_app

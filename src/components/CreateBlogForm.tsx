@@ -1,7 +1,7 @@
 'use client'
 
 import { createTopicsSchema } from '@/validators/link';
-import React from 'react'
+import React, { useEffect } from 'react';
 import { z } from 'zod';
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -24,7 +24,8 @@ import { Plus, Trash } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { useToast } from './ui/use-toast';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+
 
 type Props = {}
 
@@ -32,9 +33,13 @@ type Props = {}
 type Input = z.infer<typeof createTopicsSchema>;
 
 
-const CreateCourseForm = (props: Props) => {
+const CreateBlogForm = (props: Props) => {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { toast } = useToast();
+
+    // Retrieve the 'link' query parameter from the URL
+    const linkFromUrl = searchParams.get('ytlink');
 
     const { mutate: createBlog, isPending } = useMutation({
         mutationFn: async ({ link, topics }: Input) => {
@@ -48,7 +53,7 @@ const CreateCourseForm = (props: Props) => {
         resolver: zodResolver(createTopicsSchema),
         // This sets the initial loading state for the form
         defaultValues: {
-            link: '',
+            link: linkFromUrl || '', // Use the link from the URL if available, otherwise default to empty string
             topics: ['']
         },
     })
@@ -98,7 +103,7 @@ const CreateCourseForm = (props: Props) => {
                             <FormItem>
                                 <FormLabel className="text-white">Enter Youtube Link</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="Enter a youtube link to get started." {...field} />
+                                    <Input placeholder="Enter a youtube link to get started." className="text-white" {...field} />
                                 </FormControl>
                                 <FormDescription>
                                     Enter the link of the video you would like to create content on.
@@ -133,6 +138,7 @@ const CreateCourseForm = (props: Props) => {
                                                     <FormControl className="flex-[6]">
                                                         <Input
                                                             placeholder="Enter additional topics to include"
+                                                            className="text-white"
                                                             {...field}
                                                         />
                                                     </FormControl>
@@ -181,4 +187,4 @@ const CreateCourseForm = (props: Props) => {
     )
 }
 
-export default CreateCourseForm
+export default CreateBlogForm

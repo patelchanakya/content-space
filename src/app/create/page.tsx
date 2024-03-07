@@ -34,9 +34,7 @@ const CreatePage = async (props: Props) => {
                     </HoverCardContent>
                 </HoverCard>
                 <div>
-                    Simply input a YouTube link of your choice, and watch as our advanced AI technology
-                    takes over, analyzing the video content to craft a comprehensive and engaging
-                    blog post tailored just for you. Experience the future of content creation today.
+                    Input a YouTube link, and let our AI craft a personalized blog post from the video content. Experience the future of content creation today.
                 </div>
             </div>
 

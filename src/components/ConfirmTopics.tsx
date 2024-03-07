@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Button, buttonVariants } from './ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import TopicCard, { TopicCardHandler } from './TopicCard';
+import { useRouter } from 'next/navigation';
 
 type Props = {
     blog: Blog & {
@@ -30,6 +31,22 @@ const ConfirmTopics = ({ blog }: Props) => {
     const [completedTopics, setCompletedTopics] = React.useState<Set<String>>(new Set());
     const totalTopicsCount = React.useMemo(() => blog.topics.length, [blog.topics]);
 
+    const [topicName, setTopicName] = React.useState('');
+
+    const router = useRouter();
+
+    React.useEffect(() => {
+        // Assuming the blog object contains a property for the YouTube link
+        // If not, this logic will need to be adjusted accordingly.
+        if (blog.name) {
+            setTopicName(blog.name);
+        }
+    }, [blog.name]);
+
+    const handleBack = () => {
+        router.push(`/create?ytlink=${encodeURIComponent(topicName)}`);
+    };
+
     return (
         <div className="p-2">
             {totalTopicsCount === completedTopics.size && (
@@ -52,11 +69,15 @@ const ConfirmTopics = ({ blog }: Props) => {
             ))}
             <div className="flex justify-center items-center mt-4">
                 <Separator className="flex-[1]" />
-                <div className="flex items-center mx-4">
-                    <Link href="/create" className={buttonVariants({ variant: "secondary" })}>
+                <div className="flex items-center mx-4 gap-1">
+                    <Button
+                        type="button"
+                        className={buttonVariants({ variant: "secondary" })}
+                        onClick={handleBack}
+                    >
                         <ChevronLeft className="w-4 h-4 mr-2" strokeWidth={2} />
                         Back
-                    </Link>
+                    </Button>
                     {/* When the "Generate" button is clicked, we loop through each topicRef and call the 
                     triggerLoad function on the referenced TopicCard component. This effectively simulates 
                     a "load" action for each topic, utilizing the imperative handle pattern to directly 

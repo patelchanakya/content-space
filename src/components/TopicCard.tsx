@@ -74,6 +74,7 @@ const TopicCard = React.forwardRef<TopicCardHandler, Props>(
                         title: "Content Generated",
                         description: `Generated content already exists for "${topic.name}".`,
                         variant: "default",
+
                     });
                     addTopicIdToSet(); // Add topic ID to set when expanded content exists
                     return;
@@ -124,7 +125,7 @@ const TopicCard = React.forwardRef<TopicCardHandler, Props>(
                 </div>
                 {isPending && (
                     <div className="flex justify-center items-center ml-4">
-                        <Loader2 className="animate-spin h-6 w-6" />
+                        <Loader2 className="animate-spin h-6 w-6 text-white" />
                     </div>
                 )}
             </div>
