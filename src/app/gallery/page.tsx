@@ -38,9 +38,9 @@ const GalleryPage = async () => {
                             </HoverCardContent>
                         </HoverCard>
                         <br />
-                        <Suspense fallback={<Loader2 className="animate-spin" />}>
+                        {/* <Suspense fallback={<Loader2 className="animate-spin" />}>
                             <VideoComponent videoUrl={blog.name} />
-                        </Suspense>
+                        </Suspense> */}
                         <Link href={`/blog/${blog.id}`} className="mt-4 text-center text-sm text-blue-600 hover:text-blue-800">
                             View Blog
                         </Link>
