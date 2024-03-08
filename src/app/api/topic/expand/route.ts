@@ -53,8 +53,7 @@ export async function POST(req: Request, res: Response) {
 
         const expandTopicsResponse = await axios.post<BlogExpansionResponse>(backendAPI, requestBody, {
             headers: {
-                Authorization: `Token ${process.env.MODAL_TOKEN_ID}:${process.env.MODAL_TOKEN_SECRET}`,
-                "Content-Type": "application/json",
+                Authorization: `Token ${process.env.MODAL_TOKEN_ID}:${process.env.MODAL_TOKEN_SECRET}`
             },
         });
         const { expanded_content, topic_name } = expandTopicsResponse.data;

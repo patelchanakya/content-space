@@ -29,14 +29,10 @@ export async function POST(req: Request) {
 
         const response = await axios.post<TranscriptTopicsResponse>(backendAPI, { link, topics }, {
             headers: {
-                Authorization: `Token ${process.env.MODAL_TOKEN_ID}:${process.env.MODAL_TOKEN_SECRET}`,
-                "Content-Type": "application/json",
+                Authorization: `Token ${process.env.MODAL_TOKEN_ID}:${process.env.MODAL_TOKEN_SECRET}`
             },
         });
 
-        if (response.status !== 201) {
-            return NextResponse.json({ error: "Failed to create blog due to an unexpected response from the backend API." }, { status: response.status });
-        }
 
         const blog = await prisma.blog.create({
             data: {
