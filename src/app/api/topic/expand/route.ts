@@ -51,7 +51,12 @@ export async function POST(req: Request, res: Response) {
             points: topicDetails.points.map(point => point.summary),
         };
 
-        const expandTopicsResponse = await axios.post<BlogExpansionResponse>(backendAPI, requestBody);
+        const expandTopicsResponse = await axios.post<BlogExpansionResponse>(backendAPI, requestBody, {
+            headers: {
+                Authorization: `Token ${process.env.MODAL_TOKEN_ID}:${process.env.MODAL_TOKEN_SECRET}`,
+                "Content-Type": "application/json",
+            },
+        });
         const { expanded_content, topic_name } = expandTopicsResponse.data;
 
         // Extract the blogId from the topicDetails
@@ -79,20 +84,13 @@ export async function POST(req: Request, res: Response) {
 
         return NextResponse.json({
             success: true,
-            topicName: topic_name,
-            expandedContent: expanded_content,
-            expandedContentId: expandedContentRecord.id, // Return the ID of the newly created expanded content record
-            originalTopicDetails: {
-                id: topicDetails.id,
-                name: topicDetails.name,
+            message: "Content expanded successfully",
+            data: {
+                topicName: topic_name,
+                expandedContentId: expandedContentRecord.id,
                 blogId: blogIdFromTopic,
-                points: topicDetails.points.map(point => ({
-                    id: point.id,
-                    summary: point.summary,
-                }))
             },
-            status: 200
-        });
+        }, { status: 200 });
     } catch (error) {
         if (error instanceof z.ZodError) {
             return NextResponse.json(

@@ -27,13 +27,17 @@ export async function POST(req: Request) {
     try {
         const backendAPI = "https://patelchanakya--my-content-go-crazy-fastapi-app.modal.run/createblog";
 
-        // This line sends a POST request to the backendAPI URL defined earlier in the code.
-        // The request body contains the 'link' and 'topics' extracted from the request to this route.
-        // 'axios.post<TranscriptTopicsResponse>' indicates that we expect the response to conform to the TranscriptTopicsResponse interface.
-        // This is crucial for type safety and ensures that the data we work with matches the expected structure.
-        const response = await axios.post<TranscriptTopicsResponse>(backendAPI, { link, topics });
+        const response = await axios.post<TranscriptTopicsResponse>(backendAPI, { link, topics }, {
+            headers: {
+                Authorization: `Token ${process.env.MODAL_TOKEN_ID}:${process.env.MODAL_TOKEN_SECRET}`,
+                "Content-Type": "application/json",
+            },
+        });
 
-        // Create a new Blog entry
+        if (response.status !== 201) {
+            return NextResponse.json({ error: "Failed to create blog due to an unexpected response from the backend API." }, { status: response.status });
+        }
+
         const blog = await prisma.blog.create({
             data: {
                 name: link, // Using 'link' as the blog name for demonstration; adjust as needed
