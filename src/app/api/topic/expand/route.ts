@@ -84,7 +84,7 @@ export async function POST(req: Request, res: Response) {
 
         // Poll the backend for the result of the blog expansion
         const pollForResults = async (callId: string): Promise<BlogPollExpansionResponse> => {
-            const resultEndpoint = `https://patelchanakya--my-content-go-crazy-fastapi-app-dev.modal.run/result/${callId}`;
+            const resultEndpoint = `https://patelchanakya--my-content-go-crazy-fastapi-app.modal.run/result/${callId}`;
             let result: BlogPollExpansionResponse | null = null;
             while (!result) {
                 const response = await axios.get<BlogPollExpansionResponse>(resultEndpoint, {
