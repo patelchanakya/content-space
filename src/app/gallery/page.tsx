@@ -23,7 +23,7 @@ const GalleryPage = async () => {
         <div className="p-4 pt-12 mx-auto max-w-7xl">
             <h1 className="text-2xl pt-12 font-bold text-center mb-4">Gallery Page</h1>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {blogs.map((blog) => (
+                {blogs.slice(0).reverse().map((blog) => (
                     <Card key={blog.id} className="flex flex-col cursor-pointer p-6 bg-black rounded-lg border border-gray-200 shadow-md hover:bg-gray-800 transition duration-300 ease-in-out">
                         <HoverCard>
                             <HoverCardTrigger>

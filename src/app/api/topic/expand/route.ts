@@ -11,10 +11,16 @@ const topicExpandSchema = z.object({
 
 const sleep = async () => new Promise((resolve) => setTimeout(resolve, Math.random() * 4000));
 
-interface BlogExpansionResponse {
+interface BlogPollExpansionResponse {
     topic_name: string;
     expanded_content: string;
 }
+
+// New response structure based on the updated backend implementation
+interface BlogExpansionResponse {
+    call_id: string;
+}
+
 
 export async function POST(req: Request, res: Response) {
     try {
@@ -45,19 +51,6 @@ export async function POST(req: Request, res: Response) {
             );
         }
 
-        const backendAPI = "https://patelchanakya--my-content-go-crazy-fastapi-app.modal.run/expandblog";
-        const requestBody = {
-            topicName: topicDetails.name,
-            points: topicDetails.points.map(point => point.summary),
-        };
-
-        const expandTopicsResponse = await axios.post<BlogExpansionResponse>(backendAPI, requestBody, {
-            headers: {
-                Authorization: `Token ${process.env.MODAL_TOKEN_ID}:${process.env.MODAL_TOKEN_SECRET}`
-            },
-        });
-        const { expanded_content, topic_name } = expandTopicsResponse.data;
-
         // Extract the blogId from the topicDetails
         const blogIdFromTopic = topicDetails.blog?.id;
 
@@ -68,28 +61,123 @@ export async function POST(req: Request, res: Response) {
             );
         }
 
+        const backendAPI = "https://patelchanakya--my-content-go-crazy-fastapi-app.modal.run/expandblog";
+        const requestBody = {
+            topicName: topicDetails.name,
+            points: topicDetails.points.map(point => point.summary),
+        };
+
+        console.log("Request body: ", requestBody);
+
+        const expandTopicsResponse = await axios.post<BlogExpansionResponse>(backendAPI, requestBody, {
+            headers: {
+                Authorization: `Token ${process.env.MODAL_TOKEN_ID}:${process.env.MODAL_TOKEN_SECRET}`,
+                'Content-Type': 'application/json',
+            },
+        });
+
+        console.log("Expand topics response: ", expandTopicsResponse.data);
+
+        const { call_id } = expandTopicsResponse.data;
+
+        console.log("Call ID: ", call_id);
+
+        // Poll the backend for the result of the blog expansion
+        const pollForResults = async (callId: string): Promise<BlogPollExpansionResponse> => {
+            const resultEndpoint = `https://patelchanakya--my-content-go-crazy-fastapi-app-dev.modal.run/result/${callId}`;
+            let result: BlogPollExpansionResponse | null = null;
+            while (!result) {
+                const response = await axios.get<BlogPollExpansionResponse>(resultEndpoint, {
+                    headers: {
+                        Authorization: `Token ${process.env.MODAL_TOKEN_ID}:${process.env.MODAL_TOKEN_SECRET}`,
+                    },
+                });
+                if (response.status === 202) {
+                    // The processing is not yet complete, wait for a bit before retrying
+                    await sleep();
+                } else if (response.status === 200) {
+                    // The processing is complete, break the loop
+                    result = response.data;
+                    break;
+                } else {
+                    // An error occurred, throw an exception
+                    throw new Error('Failed to poll for results');
+                }
+            }
+            if (!result) {
+                throw new Error('Result is null after polling');
+            }
+            return result;
+        };
+
+        // Call the polling function and wait for the result
+        const expandedContentResult = await pollForResults(call_id);
+
+        console.log("Expanded content result: ", expandedContentResult);
+
+        // Assuming expandedContentResult matches the expected structure
+        if (!expandedContentResult || !expandedContentResult.expanded_content) {
+            return NextResponse.json(
+                { success: false, error: 'Failed to expand content' },
+                { status: 500 }
+            );
+        }
+
+        // Save the expanded content to the database
         // Since there's only one point, no need to iterate
         const point = topicDetails.points[0];
         const expandedContentRecord = await prisma.expandedContent.create({
             data: {
                 topicId: topicId,
-                pointId: point.id,
-                content: expanded_content, // The expanded content from the API response
+                pointId: point.id, // Added pointId to match the required structure
+                content: expandedContentResult.expanded_content, // The expanded content from the API response
             },
         });
 
-        // Directly use the blogId associated with the topic from the database
-        // This ensures we are working with a valid blogId for the response
+        console.log("Expanded content record: ", expandedContentRecord);
 
+        // Return the expanded content to the client
         return NextResponse.json({
             success: true,
             message: "Content expanded successfully",
             data: {
-                topicName: topic_name,
+                topicName: expandedContentResult.topic_name,
                 expandedContentId: expandedContentRecord.id,
                 blogId: blogIdFromTopic,
             },
         }, { status: 200 });
+        // // Return the call_id to the client for polling
+        // return NextResponse.json({
+        //     success: true,
+        //     message: "Blog expansion initiated successfully",
+        //     data: {
+        //         call_id: call_id,
+        //     },
+        // }, { status: 202 }); // Use 202 Accepted to indicate the request has been accepted for processing, but the processing has not been completed.
+        // const { expanded_content, topic_name } = expandTopicsResponse.data;
+
+        // // Since there's only one point, no need to iterate
+        // const point = topicDetails.points[0];
+        // const expandedContentRecord = await prisma.expandedContent.create({
+        //     data: {
+        //         topicId: topicId,
+        //         pointId: point.id,
+        //         content: expanded_content, // The expanded content from the API response
+        //     },
+        // });
+
+        // // Directly use the blogId associated with the topic from the database
+        // // This ensures we are working with a valid blogId for the response
+
+        // return NextResponse.json({
+        //     success: true,
+        //     message: "Content expanded successfully",
+        //     data: {
+        //         topicName: topic_name,
+        //         expandedContentId: expandedContentRecord.id,
+        //         blogId: blogIdFromTopic,
+        //     },
+        // }, { status: 200 });
     } catch (error) {
         if (error instanceof z.ZodError) {
             return NextResponse.json(
