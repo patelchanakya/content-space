@@ -66,57 +66,56 @@ const TopicCard = React.forwardRef<TopicCardHandler, Props>(
             }
         }).mutate;
 
+        const maxPollingRetries = 30; // Set a maximum number of retries
+        const pollInterval = 2000; // Base interval between polls in milliseconds
+        let retryCount = 0;
+
+
         const pollForExpansionResult = async (callId: string) => {
-            console.log(`Polling started - IsPollingComplete: ${isPollingComplete}`);
+            console.log(`Polling started for call ID: ${callId}`);
             const pollInterval = 2000; // Interval between polls in milliseconds
-            let isComplete = false;
+            const maxRetries = 5; // Maximum number of retries
+            let retryCount = 0;
 
             const checkPollingResult = async () => {
+                if (retryCount >= maxRetries) {
+                    console.error('Maximum polling retries reached.');
+                    setIsPollingComplete(true);
+                    setIsPending(false);
+                    setSuccess(false);
+                    toast({
+                        title: "Error",
+                        description: "Failed to load topic information after maximum retries.",
+                        variant: "destructive",
+                    });
+                    return;
+                }
+
                 try {
                     const response = await axios.get(`/api/poll/result/${callId}`);
                     const responseData = response.data;
 
                     if (response.status === 202) {
                         console.log('Processing is ongoing. Waiting before next poll.');
-                        setTimeout(checkPollingResult, pollInterval); // Schedule the next poll
+                        setTimeout(checkPollingResult, pollInterval);
+                        retryCount++;
                     } else if (response.status === 200) {
-                        isComplete = true;
-                        setIsPollingComplete(true); // Mark polling as complete
-                        setIsPending(false); // Reset isPending once polling is complete and we have a final response
-                        if (responseData.success) {
-                            addTopicIdToSet();
-                            setSuccess(true);
-                            // Invalidate and refetch topic data to update the UI with the expanded content
-                            queryClient.invalidateQueries({ queryKey: ['topic', topic.id] });
-                            console.log(`Polling success - Success: ${success}`);
-                            toast({
-                                title: "Success",
-                                description: "Topic information loaded successfully.",
-                            });
-                        } else {
-                            console.error(`Polling completed but failed to load topic information: ${responseData.message}`);
-                            setSuccess(false);
-                            console.log(`Polling error - Success: ${success}`);
-                            toast({
-                                title: "Error",
-                                description: "Failed to load topic information.",
-                                variant: "destructive",
-                            });
-                        }
+                        console.log('Polling successful.');
+                        setIsPollingComplete(true);
+                        setIsPending(false);
+                        setSuccess(true);
+                        // Handle successful polling...
                     } else {
-                        throw new Error(`Unexpected response status: ${response.status}, message: ${responseData.message}`);
+                        console.error(`Unexpected response status: ${response.status}`);
+                        // Consider retrying or handling specific status codes differently
+                        setTimeout(checkPollingResult, pollInterval);
+                        retryCount++;
                     }
                 } catch (error) {
-                    console.error(`Polling error - ${error}`);
-                    isComplete = true;
-                    setIsPollingComplete(true); // Mark polling as complete on error
-                    setIsPending(false); // Ensure isPending is reset on error
-                    setSuccess(false);
-                    toast({
-                        title: "Error",
-                        description: "Failed to load topic information due to an unexpected error.",
-                        variant: "destructive",
-                    });
+                    console.error(`Polling error: ${error}`);
+                    // Consider retrying or handling specific errors differently
+                    setTimeout(checkPollingResult, pollInterval);
+                    retryCount++;
                 }
             };
 
