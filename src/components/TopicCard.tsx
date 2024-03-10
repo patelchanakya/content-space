@@ -66,11 +66,6 @@ const TopicCard = React.forwardRef<TopicCardHandler, Props>(
             }
         }).mutate;
 
-        const maxPollingRetries = 30; // Set a maximum number of retries
-        const pollInterval = 2000; // Base interval between polls in milliseconds
-        let retryCount = 0;
-
-
         const pollForExpansionResult = async (callId: string) => {
             console.log(`Polling started for call ID: ${callId}`);
             const pollInterval = 1250; // Interval between polls in milliseconds
@@ -104,6 +99,7 @@ const TopicCard = React.forwardRef<TopicCardHandler, Props>(
                         setIsPollingComplete(true);
                         setIsPending(false);
                         setSuccess(true);
+                        addTopicIdToSet(); // Add topic ID to set upon successful polling
                         // Handle successful polling...
                     } else {
                         console.error(`Unexpected response status: ${response.status}`);
