@@ -19,14 +19,14 @@ export function ThreeDCardDemo() {
                     translateZ="50"
                     className="text-xl font-bold text-neutral-600 dark:text-white"
                 >
-                    Unleash Your Creativity
+                    Transform Your YouTube Content
                 </CardItem>
                 <CardItem
                     as="p"
                     translateZ="60"
                     className="text-neutral-500 text-sm max-w-sm mt-2 dark:text-neutral-300"
                 >
-                    Explore and create with tools designed to bring your creative projects to life.
+                    Elevate your YouTube channel by converting videos into engaging blog posts.
                 </CardItem>
                 <CardItem translateZ="100" className="w-full mt-4">
                     <Image
@@ -34,7 +34,7 @@ export function ThreeDCardDemo() {
                         height="1000"
                         width="1000"
                         className="h-60 w-full object-cover rounded-xl group-hover/card:shadow-xl"
-                        alt="thumbnail"
+                        alt="YouTube to blog conversion"
                     />
                 </CardItem>
                 <div className="flex justify-end items-center mt-20">

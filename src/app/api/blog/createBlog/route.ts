@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 import { createTopicsSchema } from "@/validators/server-link"; // server schema duplicate of client schema just w/o 'use client'
 import { ZodError } from "zod";
-import axios, { isCancel, AxiosError } from 'axios';
+import axios from 'axios';
 import { prisma } from "@/lib/db";
 
 // Define TypeScript interfaces to mirror the Python Pydantic models
@@ -18,29 +18,24 @@ interface TranscriptTopicsResponse {
     error?: string;
 }
 
-
 export async function POST(req: Request) {
-
     const body = await req.json() as TranscriptTopicsResponse; // Cast the body to the correct type
     const { link, topics } = createTopicsSchema.parse(body);
 
     try {
         const backendAPI = "https://patelchanakya--my-content-go-crazy-fastapi-app.modal.run/createblog";
-
         const response = await axios.post<TranscriptTopicsResponse>(backendAPI, { link, topics }, {
             headers: {
-                Authorization: `Token ${process.env.MODAL_TOKEN_ID}:${process.env.MODAL_TOKEN_SECRET}`
+                Authorization: `Token ${process.env.MODAL_TOKEN_ID}:${process.env.MODAL_TOKEN_SECRET}`,
+                'Content-Type': 'application/json'
             },
         });
-
-
         const blog = await prisma.blog.create({
             data: {
                 name: link, // Using 'link' as the blog name for demonstration; adjust as needed
                 // Optionally, you can add more fields here as your Blog model evolves
             },
         });
-
         // Iterate over each topic in the 'topics' array
         for (const { topic, point } of response.data.topics) {
             // Create a new Topic entry linked to the Blog
@@ -58,14 +53,8 @@ export async function POST(req: Request) {
                 },
             });
         }
-
-
-
-
         // we return a blog id
         return NextResponse.json({ blog_id: blog.id });
-
-
     } catch (error) {
         console.error("Error details:", error);
         if (error instanceof ZodError) {
