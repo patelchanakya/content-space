@@ -1,4 +1,3 @@
-import CreateCourseForm from '@/components/CreateBlogForm';
 import { getAuthSession } from '@/lib/auth'
 import { InfoIcon } from 'lucide-react';
 import { redirect } from 'next/navigation';
@@ -9,6 +8,7 @@ import {
 } from "@/components/ui/hover-card"
 
 import React from 'react'
+import CreateBlogForm from '@/components/CreateBlogForm';
 
 type Props = {};
 
@@ -38,7 +38,7 @@ const CreatePage = async (props: Props) => {
                 </div>
             </div>
 
-            <CreateCourseForm />
+            <CreateBlogForm />
 
         </div>
     );

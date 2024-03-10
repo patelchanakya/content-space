@@ -2,7 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import { ExpandedContent, Point, Topic } from '@prisma/client';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import React from 'react'
 import { useToast } from './ui/use-toast';
@@ -25,20 +25,15 @@ export type TopicCardHandler = {
 const TopicCard = React.forwardRef<TopicCardHandler, Props>(
 
     ({ topic, topicIndex, setCompletedTopics, completedTopics }, ref) => {
-
         const { toast } = useToast();
-        const queryClient = useQueryClient();
 
         const [success, setSuccess] = React.useState<boolean | null>(null);
         const [isPollingComplete, setIsPollingComplete] = React.useState(false);
         const [isPending, setIsPending] = React.useState(false);
 
-        console.log(`Initial state - Success: ${success}, IsPollingComplete: ${isPollingComplete}, IsPending: ${isPending}`);
-
         const getTopicInfo = useMutation({
             mutationFn: async () => {
                 setIsPending(true); // Set isPending to true at the start of the mutation
-                console.log('Initiating POST request to expand topic API endpoint with topic ID:', topic.id);
                 const response = await axios.post("/api/topic/expand", {
                     topicId: topic.id,
                 });
@@ -47,12 +42,7 @@ const TopicCard = React.forwardRef<TopicCardHandler, Props>(
                     console.error('Failed to initiate blog expansion. Response status:', response.status);
                     throw new Error('Failed to initiate blog expansion');
                 }
-
-                console.log('Response data:', response.data);
-                // Do not reset isPending here to ensure loader remains visible until polling is complete
-                console.log(`Mutation completed - IsPending: ${isPending}`);
                 return response.data.data.call_id; // Ensure we return the call_id for polling
-
             },
             onError: () => {
                 setIsPending(false); // Ensure isPending is reset on error as well
@@ -67,7 +57,6 @@ const TopicCard = React.forwardRef<TopicCardHandler, Props>(
         }).mutate;
 
         const pollForExpansionResult = async (callId: string) => {
-            console.log(`Polling started for call ID: ${callId}`);
             const pollInterval = 1250; // Interval between polls in milliseconds
             const maxRetries = 40; // Maximum number of retries
             let retryCount = 0;
@@ -123,34 +112,28 @@ const TopicCard = React.forwardRef<TopicCardHandler, Props>(
                 setCompletedTopics(prevCompletedTopics => {
                     const updatedSet = new Set(prevCompletedTopics);
                     updatedSet.add(topic.id);
-                    console.log(`Added topic ID to set: ${topic.id}`);
                     return updatedSet;
                 });
             }
         }, [setCompletedTopics, topic.id, completedTopics]);
 
         React.useEffect(() => {
-            console.log(`Checking if topic has expanded content - Length: ${topic.expandedContent.length}`);
             if (topic.expandedContent.length > 0) {
                 addTopicIdToSet();
                 setSuccess(true);
-                console.log(`Effect hook - Success: ${success}`);
             }
         }, [topic, addTopicIdToSet]);
 
         React.useImperativeHandle(ref, () => ({
             triggerLoad: async () => {
-                console.log(`Trigger load called - ExpandedContent Length: ${topic.expandedContent.length}, IsPending: ${isPending}`);
                 if (topic.expandedContent.length === 0 && !isPending) {
                     getTopicInfo(undefined, {
                         onSuccess: (callId) => {
-                            console.log(`Get topic info success - Call ID: ${callId}`);
                             pollForExpansionResult(callId);
                         },
                         onError: (error) => {
                             setSuccess(false);
                             addTopicIdToSet();
-                            console.log(`Get topic info error - Error: ${error}`);
                             toast({
                                 title: "Error",
                                 description: "Failed to load topic information.",
