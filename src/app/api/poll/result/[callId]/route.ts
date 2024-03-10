@@ -48,7 +48,7 @@ export async function GET(request: NextRequest, { params }: { params: { callId: 
     try {
         console.log('Trying to poll for results...');
         const pollForResults = async (callId: string): Promise<BlogPollExpansionResponse> => {
-            const resultEndpoint = `https://patelchanakya--my-content-go-crazy-fastapi-app-dev.modal.run/result/${callId}`;
+            const resultEndpoint = `https://patelchanakya--my-content-go-crazy-fastapi-app.modal.run/result/${callId}`;
             let result: BlogPollExpansionResponse | null = null;
             while (!result) {
                 console.log('Waiting for results...');
