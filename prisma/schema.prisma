@@ -69,6 +69,7 @@ model Blog {
 model Topic {
   id              String            @id @default(cuid())
   blogId          String
+  callId          String? // New field to store the call ID  
   name            String
   blog            Blog              @relation(fields: [blogId], references: [id])
   points          Point[]

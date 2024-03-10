@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     const { link, topics } = createTopicsSchema.parse(body);
 
     try {
-        const backendAPI = "https://patelchanakya--my-content-go-crazy-fastapi-app.modal.run/createblog";
+        const backendAPI = "https://patelchanakya--my-content-go-crazy-fastapi-app-dev.modal.run/createblog";
 
         const response = await axios.post<TranscriptTopicsResponse>(backendAPI, { link, topics }, {
             headers: {

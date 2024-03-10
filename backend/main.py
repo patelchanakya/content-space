@@ -89,6 +89,7 @@ async def process_youtube_video(video_topics: VideoTopicsRequest):
         captions = YouTubeTranscriptApi.get_transcript(video_id)
         transcript = ' '.join([re.sub(r'\[.*?\]', '', caption['text']) for caption in captions]).strip()
     except Exception as error:
+        print(f"Error getting transcript: {str(error)}")
         return TranscriptTopicsResponse(error=str(error), video_id=video_id)
 
     # This OpenAI prompt is crafted for an in-depth analysis of the video transcript.
@@ -96,7 +97,8 @@ async def process_youtube_video(video_topics: VideoTopicsRequest):
     # A crucial limitation is the total number of topics, which must not exceed 5, to ensure focus and relevance.
     # The prompt is designed to prevent topic duplication, thereby maintaining the uniqueness and pertinence of each topic.
     # It mandates the inclusion of pertinent transcript excerpts for each topic to substantiate the main points for further elaboration.
-    prompt = f"Analyze the following transcript: '{transcript}'. Your task is to identify and enumerate at least 2 extra new main topics, providing detailed points for each. Additionally, enrich the pre-existing topics: {additional_topics} with insights from the transcript. It is imperative to keep the original topics ({additional_topics}) intact, merely augmenting them with relevant points from the transcript. Introduce new topics directly as necessary, but ensure the total does not surpass 5, to avoid redundancy and maintain contextual relevance and efficiency. For each topic, include relevant excerpts from the transcript that illustrate the core idea for further development. Ensure there is no overlap with existing topics, preserving the uniqueness and relevance of each (wihtout using introduction or conclusion style generic headings). If the ${additional_topics} is not in the final list of topics then try again and make sure it is."
+    prompt = f"Analyze the following transcript: '{transcript}'. Your task is to identify and enumerate at least 2 extra new main topics, providing detailed points for each. Additionally, enrich the pre-existing topics: {additional_topics} with insights from the transcript. It is imperative to keep the original topics ({additional_topics}) intact, merely augmenting them with relevant points from the transcript. Introduce new topics directly as necessary, but ensure the total does not surpass 5, to avoid redundancy and maintain contextual relevance and efficiency. For each topic, include relevant excerpts from the transcript that illustrate the core idea for further development. Ensure there is no overlap with existing topics, preserving the uniqueness and relevance of each. If the {additional_topics} is not in the final list of topics then try again and make sure it is."
+    print(f"Prompt: {prompt}")
     try:
         response = await client.chat.completions.create(
             model="gpt-4",
@@ -107,10 +109,12 @@ async def process_youtube_video(video_topics: VideoTopicsRequest):
             response_model=TranscriptTopicsResponse,
             max_retries=5
         )
+        print(f"Response: {response}")
 
         # Ensure the response structure matches the expected output for the frontend
         return TranscriptTopicsResponse(link=youtube_link, video_id=video_id, topics=response.topics, error=None)
     except Exception as error:
+        print(f"Error from OpenAI: {str(error)}")
         return TranscriptTopicsResponse(error=str(error), video_id=video_id, link=youtube_link, topics=[])
 
 # polling mechanism 
@@ -122,10 +126,10 @@ async def generate_expanded_blog_content(topic_name: str, points_summary: List[s
         print("Either topic name is empty or points summary is empty.")
         return BlogPollExpansionResponse(topic_name="", expanded_content="")
     try:
-        seo_prompt = f"Please provide an in-depth exploration of the topic '{topic_name}', focusing on the following key points: {'; '.join(points_summary)}. Aim to structure the content with HTML, using <h2> tags for point headings and <p> tags for detailed discussions. The content should be rich in detail, offering clear, professional insights into each point. Ensure the narrative is comprehensive, covering each aspect thoroughly to maximize the value of the content. Additionally, please generate the maximum allowable tokens to ensure a detailed and informative expansion on the topic."
+        seo_prompt = f"Please provide an in-depth exploration of the topic '{topic_name}', focusing on the following key points: {'; '.join(points_summary)}. Aim to structure the content with HTML, using <h2> tags for point headings (wihtout using introduction or conclusion style generic headings) and <p> tags for detailed discussions. The content should be rich in detail, offering clear, professional insights into each point. Ensure the narrative is comprehensive, covering each aspect thoroughly to maximize the value of the content. Additionally, please generate the maximum allowable tokens to ensure a detailed and informative expansion on the topic."
         print(f"Sending SEO prompt to OpenAI: {seo_prompt[:100]}...")  # Print the first 100 characters of the prompt to avoid clutter
         seo_response = await client.chat.completions.create(
-            model="gpt-4",
+            model="gpt-3.5-turbo-0125", #gpt-3.5-turbo-0125
             messages=[
                 {"role": "system", "content": "You are a helpful assistant."},
                 {"role": "user", "content": seo_prompt}
@@ -133,6 +137,12 @@ async def generate_expanded_blog_content(topic_name: str, points_summary: List[s
             max_retries=5,
             response_model=BlogPollExpansionResponse,
         )
+
+        # print("Mocking SEO response for testing purposes.")
+        # seo_response = BlogPollExpansionResponse(
+        #     topic_name=topic_name,
+        #     expanded_content="This is a mocked response for the SEO content generation."
+        # )
         print(f"SEO response from OpenAI: {seo_response}")
         # Correctly access 'topic_name' and 'expanded_content' from the seo_response object
         topic_name_str = seo_response.topic_name
@@ -159,7 +169,9 @@ async def poll_results(call_id: str):
     try:
         result = function_call.get(timeout=0)
     except TimeoutError:
-        return fastapi.responses.JSONResponse(content="", status_code=202)
+        return fastapi.responses.JSONResponse(content={"success": False, "error": "Result not ready"}, status_code=202)
+    except Exception as e:
+        return fastapi.responses.JSONResponse(content={"success": False, "error": str(e)}, status_code=500)
     return result
 
 @stub.function(image=image, secrets=[modal.Secret.from_dotenv(__file__)])
