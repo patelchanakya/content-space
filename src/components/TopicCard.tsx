@@ -68,54 +68,59 @@ const TopicCard = React.forwardRef<TopicCardHandler, Props>(
 
         const pollForExpansionResult = async (callId: string) => {
             console.log(`Polling started - IsPollingComplete: ${isPollingComplete}`);
-            const pollInterval = 2000;
+            const pollInterval = 2000; // Interval between polls in milliseconds
             let isComplete = false;
 
-            while (!isComplete) {
-                const response = await axios.get(`/api/poll/result/${callId}`);
-                const responseData = response.data;
+            const checkPollingResult = async () => {
+                try {
+                    const response = await axios.get(`/api/poll/result/${callId}`);
+                    const responseData = response.data;
 
-                if (response.status === 202) {
-                    console.log('Processing is ongoing. Waiting before next poll.');
-                    await new Promise(resolve => setTimeout(resolve, pollInterval));
-                } else if (response.status === 200) {
-                    isComplete = true;
-                    setIsPending(false); // Reset isPending once polling is complete and we have a final response
-                    if (responseData.success) {
-                        addTopicIdToSet();
-                        setSuccess(true);
-                        // Invalidate and refetch topic data to update the UI with the expanded content
-                        queryClient.invalidateQueries({ queryKey: ['topic', topic.id] });
-                        console.log(`Polling success - Success: ${success}`);
-                        toast({
-                            title: "Success",
-                            description: "Topic information loaded successfully.",
-                        });
+                    if (response.status === 202) {
+                        console.log('Processing is ongoing. Waiting before next poll.');
+                        setTimeout(checkPollingResult, pollInterval); // Schedule the next poll
+                    } else if (response.status === 200) {
+                        isComplete = true;
+                        setIsPollingComplete(true); // Mark polling as complete
+                        setIsPending(false); // Reset isPending once polling is complete and we have a final response
+                        if (responseData.success) {
+                            addTopicIdToSet();
+                            setSuccess(true);
+                            // Invalidate and refetch topic data to update the UI with the expanded content
+                            queryClient.invalidateQueries({ queryKey: ['topic', topic.id] });
+                            console.log(`Polling success - Success: ${success}`);
+                            toast({
+                                title: "Success",
+                                description: "Topic information loaded successfully.",
+                            });
+                        } else {
+                            console.error(`Polling completed but failed to load topic information: ${responseData.message}`);
+                            setSuccess(false);
+                            console.log(`Polling error - Success: ${success}`);
+                            toast({
+                                title: "Error",
+                                description: "Failed to load topic information.",
+                                variant: "destructive",
+                            });
+                        }
                     } else {
-                        console.error(`Polling completed but failed to load topic information: ${responseData.message}`);
-                        setSuccess(false);
-                        console.log(`Polling error - Success: ${success}`);
-                        toast({
-                            title: "Error",
-                            description: "Failed to load topic information.",
-                            variant: "destructive",
-                        });
+                        throw new Error(`Unexpected response status: ${response.status}, message: ${responseData.message}`);
                     }
-                } else {
-                    console.error(`Unexpected response status: ${response.status}, message: ${responseData.message}`);
+                } catch (error) {
+                    console.error(`Polling error - ${error}`);
                     isComplete = true;
-                    setIsPending(false); // Ensure isPending is reset even on unexpected response
+                    setIsPollingComplete(true); // Mark polling as complete on error
+                    setIsPending(false); // Ensure isPending is reset on error
                     setSuccess(false);
-                    console.log(`Unexpected polling response - Success: ${success}`);
                     toast({
                         title: "Error",
                         description: "Failed to load topic information due to an unexpected error.",
                         variant: "destructive",
                     });
                 }
-            }
-            setIsPollingComplete(true); // Set polling completion status to true once done
-            console.log(`Polling completed - IsPollingComplete: ${isPollingComplete}`);
+            };
+
+            checkPollingResult(); // Initiate the polling process
         };
 
         const addTopicIdToSet = React.useCallback(() => {
