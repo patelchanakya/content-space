@@ -6,7 +6,8 @@
 // All database tables and their respective fields will be defined within this section.
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex", "driverAdapters"]
 }
 
 datasource db {
