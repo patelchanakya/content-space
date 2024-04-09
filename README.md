@@ -7,10 +7,7 @@ Node.js 12.22.0 or later
 npm, Yarn, or pnpm
 A modern browser
 Setting Up Your Development Environment
-Clone the repository:
-
-bash
-Copy code
+# Clone the repository:
 git clone https://github.com/patelchanakya/content-space.git
 cd content-space
 # Install dependencies:
