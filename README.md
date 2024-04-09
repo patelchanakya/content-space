@@ -20,7 +20,8 @@ Visit http://localhost:3000 in your browser to dive into Content Space!
 Start by editing app/page.tsx to see live updates in your browser. Your contributions to improving the UI, enhancing the backend functionality, or documenting your journey are invaluable to us.
 
 # Features
-YouTube Link Integration: Easily convert YouTube content into engaging blog posts.
-Automatic Font Optimization: Utilizes next/font for crisp, clear typography.
-Prisma & Railway DB: A robust backend setup for efficient data handling.
-User-Friendly UI: Recent updates ensure a seamless user experience.
+* YouTube Link Integration: Easily convert YouTube content into engaging blog posts.
+* Automatic Font Optimization: Utilizes next/font for crisp, clear typography.
+* Prisma & Railway DB:
+ - A robust backend setup for efficient data handling.
+ - User-Friendly UI: Recent updates ensure a seamless user experience.
