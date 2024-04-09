@@ -12,17 +12,17 @@ A modern browser
 git clone https://github.com/patelchanakya/content-space.git
 cd content-space
 # Install dependencies: 
-npm install  
-yarn install 
-pnpm install
+npm install    
+yarn install   
+pnpm install  
 # Run the development server:
-npm run dev 
-yarn dev 
-pnpm dev
+npm run dev  
+yarn dev     
+pnpm dev              
 Visit http://localhost:3000 in your browser to dive into Content Space!
 
 # Making Your First Contribution
-Start by editing app/page.tsx to see live updates in your browser. 
+Start by editing app/page.tsx to see live updates in your browser.  
 Your contributions to improving the UI, enhancing the backend functionality, or documenting your journey are invaluable to us.
 
 # Features
